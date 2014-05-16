@@ -88,15 +88,15 @@ namespace EMWSolver
 				//std::cout << "TimeStep:" << globalTimestep << std::endl;
 		//Calculate E-field at boundaries
 		//i = 0, gridX
-		for(int j = 2; j < gridY - 1; j++)
+		for(int j = 1; j < gridY - 1; j++)
 		{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsX;
 					double SigX;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int i = 1;
+					int i = 0;
 
 					EpsX = 0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i][j - 1][k - 1] + Eps[i][j - 1][k]) * EPS_Z;
 					SigX = 0.25 * (Sig[i][j][k] + Sig[i][j][k - 1] + Sig[i][j - 1][k - 1] + Sig[i][j - 1][k]);
@@ -123,15 +123,15 @@ namespace EMWSolver
 		}
 
 		//j = 0, gridY -1
-		for(int i = 2; i < gridX - 1; i++)
+		for(int i = 1; i < gridX - 1; i++)
 		{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsY;
 					double SigY;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int j = 1;
+					int j = 0;
 					
 					EpsY = 0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k]) * EPS_Z;
 					SigY = 0.25 * (Sig[i][j][k] + Sig[i][j][k - 1] + Sig[i - 1][j][k - 1] + Sig[i - 1][j][k]);
@@ -159,15 +159,15 @@ namespace EMWSolver
 		}
 		
 		//z = 0, gridZ -1
-		for(int i = 2; i < gridX - 1; i++)
+		for(int i = 1; i < gridX - 1; i++)
 		{
 				#pragma omp parallel for
-				for(int j = 2; j < gridY - 1; j++)
+				for(int j = 1; j < gridY - 1; j++)
 				{
 					double EpsZ;
 					double SigZ;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int k = 1;
+					int k = 0;
 					
 					EpsZ = 0.25 * (Eps[i][j][k] + Eps[i - 1][j][k] + Eps[i - 1][j - 1][k] + Eps[i][j - 1][k]) * EPS_Z;
 					SigZ = 0.25 * (Sig[i][j][k] + Sig[i - 1][j][k] + Sig[i - 1][j - 1][k] + Sig[i][j - 1][k]);
@@ -193,11 +193,11 @@ namespace EMWSolver
 				}
 		}
 		//Calculate E - field at domain
-		for(int i = 2; i < gridX - 1; i++)
-			for(int j = 2; j < gridY - 1; j++)
+		for(int i = 1; i < gridX - 1; i++)
+			for(int j = 1; j < gridY - 1; j++)
 			{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsX, EpsY, EpsZ;
 					double SigX, SigY, SigZ;
@@ -251,13 +251,13 @@ namespace EMWSolver
 			//Calculate H - field at boundaries
 			//i = 0, gridX - 1
 			#pragma omp parallel for
-			for(int i = 2; i < gridX - 1; i++)
+			for(int i = 1; i < gridX - 1; i++)
 			{
 				double MjuX;
 				double SigSX;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int j = 1;
-				int k = 1;
+				int j = 0;
+				int k = 0;
 
 				MjuX = Mju[i][j][k] * MU_Z;
 				SigSX = SigS[i][j][k];
@@ -284,13 +284,13 @@ namespace EMWSolver
 			}
 			//j = 0, gridY - 1
 			#pragma omp parallel for
-			for(int j = 2; j < gridY - 1; j++)
+			for(int j = 1; j < gridY - 1; j++)
 			{
 				double MjuY;
 				double SigSY;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int i = 1;
-				int k = 1;
+				int i = 0;
+				int k = 0;
 
 				MjuY = Mju[i][j][k] * MU_Z;
 				SigSY = SigS[i][j][k];
@@ -317,13 +317,13 @@ namespace EMWSolver
 			}
 			//k = 0, gridZ - 1
 			#pragma omp parallel for
-			for(int k = 2; k < gridZ - 1; k++)
+			for(int k = 1; k < gridZ - 1; k++)
 			{
 				double MjuZ;
 				double SigSZ;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int i = 1;
-				int j = 1;
+				int i = 0;
+				int j = 0;
 
 				MjuZ = Mju[i][j][k] * MU_Z;
 				SigSZ = SigS[i][j][k];
@@ -349,11 +349,11 @@ namespace EMWSolver
 			
 			}
 			//Calculate H - field at domain
-			for(int i = 2; i < gridX - 1; i++)
-				for(int j = 2; j < gridY - 1; j++)
+			for(int i = 1; i < gridX - 1; i++)
+				for(int j = 1; j < gridY - 1; j++)
 				{
 					#pragma omp parallel for
-					for(int k = 2; k < gridZ - 1; k++)
+					for(int k = 1; k < gridZ - 1; k++)
 					{
 						double MjuX, MjuY, MjuZ;
 						double SigSX, SigSY, SigSZ;
