@@ -35,6 +35,25 @@ namespace EMWSolver
 
 		void prepare();
 
+		void setupWaveguideGeometry(int aSize, int bSize, int length, int bOff, int leps);
+		void setupWaveguideMaterial();
+
+		double gamma0;
+		double gamma1;
+
+		double gamma0_num;
+		double gamma1_num;
+
+		int _a;
+		int _b;
+
+		int _x1;
+		int _x2;
+		int _y1;
+		int _y2;
+		int _z1;
+		int _z2;
+
 		CField3D* field;
 	};
 }

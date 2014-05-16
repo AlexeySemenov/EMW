@@ -13,8 +13,8 @@
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); return 2;}
 
 const int gridX = 100;
-const int gridY = 100;
-const int gridZ = 100;
+const int gridY = 50;
+const int gridZ = 1500;
 
 double ez[gridX][gridY][gridZ];
 double ex[gridX][gridY][gridZ];
@@ -53,7 +53,7 @@ void readFile(int timestp, string path)
 
 	 string fileName4;
 	stringstream s4;
-	 s4 << path<<"\\Ez[" << timestp << "]" << ".dat";
+	 s4 << path<<"\\Ey[" << timestp << "]" << ".dat";
 	fileName4 = s4.str();
 	 ifstream file4(fileName4.c_str(), ios::in | ios::binary);
 
@@ -526,16 +526,16 @@ int countAmp(int start, int end, int arstart, int arend, char* name, int id)
 int main(int argc, char** argv)
 {
 	for(int i = 0; i < gridX; i++)
-		xDim[i] = i/20.0;
+		xDim[i] = i/80.0;
 
 	for(int i = 0; i < gridY; i++)
-		yDim[i] = i/20.0;
+		yDim[i] = i/80.0;
 
 	for(int i = 0; i < gridZ; i++)
-		zDim[i] = i/20.0;
+		zDim[i] = i/40.0;
 
 	//dFile = fopen ("ampfileSizeVarEps1602.txt","w");
-	writeNCF(0, 199);
+	writeNCF(0, 19);
 	//for(int i = 2; i <= 20; i++)
 		//countAmp(760,970, 620, 840,"ey", i+1600);
 

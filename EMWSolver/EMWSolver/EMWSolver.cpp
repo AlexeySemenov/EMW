@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	solver->Create(parser.GetDefaultTaskParameters(), parser.GetDefaultNumericalParameters(), 
 		parser.GetDefaultSourceParameters(), parser.GetDefaultBoundaryParameters());
 
-	solver->Solve(200);
+	solver->Solve(2000);
 	
 
 	//system("PAUSE");

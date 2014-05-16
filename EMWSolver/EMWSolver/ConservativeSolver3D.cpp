@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "ConservativeSolver3D.h"
 #include "PhysicConst.h"
 #include "math.h"
@@ -65,6 +66,10 @@ namespace EMWSolver
 		
 
 		prepare();
+		int aWg = numParam.Nx * 0.75;
+		int bWg = aWg / 2;
+
+		setupWaveguideGeometry(aWg, bWg, gridZ, 0 , 1);
 
 		//for(int i = 0; i < gridX; i++)
 		//	for(int j = 0; j < gridY; j++)
@@ -88,15 +93,15 @@ namespace EMWSolver
 				//std::cout << "TimeStep:" << globalTimestep << std::endl;
 		//Calculate E-field at boundaries
 		//i = 0, gridX
-		for(int j = 2; j < gridY - 1; j++)
+		for(int j = 1; j < gridY - 1; j++)
 		{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsX;
 					double SigX;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int i = 1;
+					int i = 0;
 
 					EpsX = 0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i][j - 1][k - 1] + Eps[i][j - 1][k]) * EPS_Z;
 					SigX = 0.25 * (Sig[i][j][k] + Sig[i][j][k - 1] + Sig[i][j - 1][k - 1] + Sig[i][j - 1][k]);
@@ -123,15 +128,15 @@ namespace EMWSolver
 		}
 
 		//j = 0, gridY -1
-		for(int i = 2; i < gridX - 1; i++)
+		for(int i = 1; i < gridX - 1; i++)
 		{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsY;
 					double SigY;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int j = 1;
+					int j = 0;
 					
 					EpsY = 0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k]) * EPS_Z;
 					SigY = 0.25 * (Sig[i][j][k] + Sig[i][j][k - 1] + Sig[i - 1][j][k - 1] + Sig[i - 1][j][k]);
@@ -159,15 +164,15 @@ namespace EMWSolver
 		}
 		
 		//z = 0, gridZ -1
-		for(int i = 2; i < gridX - 1; i++)
+		for(int i = 1; i < gridX - 1; i++)
 		{
 				#pragma omp parallel for
-				for(int j = 2; j < gridY - 1; j++)
+				for(int j = 1; j < gridY - 1; j++)
 				{
 					double EpsZ;
 					double SigZ;
 					double dtEps, sigDt2Eps, plus1sigDt2Eps;
-					int k = 1;
+					int k = 0;
 					
 					EpsZ = 0.25 * (Eps[i][j][k] + Eps[i - 1][j][k] + Eps[i - 1][j - 1][k] + Eps[i][j - 1][k]) * EPS_Z;
 					SigZ = 0.25 * (Sig[i][j][k] + Sig[i - 1][j][k] + Sig[i - 1][j - 1][k] + Sig[i][j - 1][k]);
@@ -193,11 +198,11 @@ namespace EMWSolver
 				}
 		}
 		//Calculate E - field at domain
-		for(int i = 2; i < gridX - 1; i++)
-			for(int j = 2; j < gridY - 1; j++)
+		for(int i = 1; i < gridX - 1; i++)
+			for(int j = 1; j < gridY - 1; j++)
 			{
 				#pragma omp parallel for
-				for(int k = 2; k < gridZ - 1; k++)
+				for(int k = 1; k < gridZ - 1; k++)
 				{
 					double EpsX, EpsY, EpsZ;
 					double SigX, SigY, SigZ;
@@ -237,27 +242,53 @@ namespace EMWSolver
 			}
 
 			//Hard coded dipole source
-				double rtau = 50.0e-12;
-				double tau = rtau / dt;
-				double ndelay = 3 * tau;
-				double srcconst = -dt * 3.0e+11;
-				for(int k = 2; k < gridZ - 1; k++)
-				{
+				//double rtau = 50.0e-12;
+				//double tau = rtau / dt;
+				//double ndelay = 3 * tau;
+				//double srcconst = -dt * 3.0e+11;
+				//for(int k = 1; k < gridZ - 1; k++)
+				//{
 
-					field->Ez[gridX / 2][gridY / 2][k] = field->Ez[gridX / 2][gridY / 2][k] + 
-						srcconst * (globalTimestep - ndelay) * exp(-((globalTimestep - ndelay) * (globalTimestep - ndelay)/(tau * tau)));
+				//	field->Ez[gridX / 2][gridY / 2][k] = field->Ez[gridX / 2][gridY / 2][k] + 
+				//		srcconst * (globalTimestep - ndelay) * exp(-((globalTimestep - ndelay) * (globalTimestep - ndelay)/(tau * tau)));
+				//}
+			for(int i = _x1; i <=_x2-1; i++)
+				for(int j = _y1; j <=_y2-1; j++)
+				{
+					int k = gridZ / 2;
+					field->Ey[i][j][k] = cos(OMEGA * (globalTimestep) * dt - gamma0 * k * dz) * sin(M_PI * (i - _x1) * dx / (_a * dx));
+					//data->Ey[i][j][1] = data->Ey[i][j][0];
+				}	
+			for(int i = _x1-1; i <= _x2+1; i++)
+				for(int k = _z1 -1 ; k <=_z2 + 1; k++)
+				{
+					field->Ez[i][_y1][k] = 0;
+					field->Ez[i][_y2][k] = 0;
+
+					field->Ex[i][_y1][k] = 0;
+					field->Ex[i][_y2][k] = 0;		
+
+				}
+			for(int j = _y1-1; j <=_y2+1; j++)
+				for(int k = _z1-1; k <= _z2 + 1; k++)
+				{
+					field->Ez[_x1][j][k] = 0;
+					field->Ez[_x2][j][k] = 0;
+
+					field->Ey[_x1][j][k] = 0;
+					field->Ey[_x2][j][k] = 0;
 				}
 
 			//Calculate H - field at boundaries
 			//i = 0, gridX - 1
 			#pragma omp parallel for
-			for(int i = 2; i < gridX - 1; i++)
+			for(int i = 1; i < gridX - 1; i++)
 			{
 				double MjuX;
 				double SigSX;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int j = 1;
-				int k = 1;
+				int j = 0;
+				int k = 0;
 
 				MjuX = Mju[i][j][k] * MU_Z;
 				SigSX = SigS[i][j][k];
@@ -284,13 +315,13 @@ namespace EMWSolver
 			}
 			//j = 0, gridY - 1
 			#pragma omp parallel for
-			for(int j = 2; j < gridY - 1; j++)
+			for(int j = 1; j < gridY - 1; j++)
 			{
 				double MjuY;
 				double SigSY;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int i = 1;
-				int k = 1;
+				int i = 0;
+				int k = 0;
 
 				MjuY = Mju[i][j][k] * MU_Z;
 				SigSY = SigS[i][j][k];
@@ -317,13 +348,13 @@ namespace EMWSolver
 			}
 			//k = 0, gridZ - 1
 			#pragma omp parallel for
-			for(int k = 2; k < gridZ - 1; k++)
+			for(int k = 1; k < gridZ - 1; k++)
 			{
 				double MjuZ;
 				double SigSZ;
 				double dtMju, sigDt2Mju, plus1sigDt2Mju;
-				int i = 1;
-				int j = 1;
+				int i = 0;
+				int j = 0;
 
 				MjuZ = Mju[i][j][k] * MU_Z;
 				SigSZ = SigS[i][j][k];
@@ -349,11 +380,11 @@ namespace EMWSolver
 			
 			}
 			//Calculate H - field at domain
-			for(int i = 2; i < gridX - 1; i++)
-				for(int j = 2; j < gridY - 1; j++)
+			for(int i = 1; i < gridX - 1; i++)
+				for(int j = 1; j < gridY - 1; j++)
 				{
 					#pragma omp parallel for
-					for(int k = 2; k < gridZ - 1; k++)
+					for(int k = 1; k < gridZ - 1; k++)
 					{
 						double MjuX, MjuY, MjuZ;
 						double SigSX, SigSY, SigSZ;
@@ -392,6 +423,26 @@ namespace EMWSolver
 							
 					}
 			}
+
+			for(int i = _x1-1; i <= _x2+1; i++)
+				for(int k = _z1-1; k <=_z2+1; k++)
+				{
+					field->Hy[i][_y1-1][k] = 0;
+					field->Hy[i][_y2][k] = 0;
+
+					//field->Hx[i][_y1-1][k] = 0;
+					//field->Hx[i][_y2][k] = 0;		
+
+				}
+			for(int j = _y1-1; j <=_y2+1; j++)
+				for(int k = _z1-1; k <=_z2+1; k++)
+				{
+					field->Hx[_x1-1][j][k] = 0;
+					field->Hx[_x2][j][k] = 0;
+
+					//field->Hy[_x1-1][j][k] = 0;
+					//field->Hy[_x2][j][k] = 0;
+				}
 		globalTimestep++;
 		Log::GetInstance().WriteLine("done.");
 	}
@@ -408,8 +459,9 @@ namespace EMWSolver
 		for(int t = 0; t < timeSteps; t++)
 		{
 			SolveStep();
-			
-			field->WriteFieldToBinary(Ez, crop, t, "C:\\Ez");
+			if(t >= 1000)
+				if(t%10 == 0)
+					field->WriteFieldToBinary(Ey, crop, t / 10, "C:\\Ez");
 		}
 	}
 
@@ -426,6 +478,66 @@ namespace EMWSolver
 	void CConservativeSolver3D::prepare()
 	{
 
+	}
+
+	void CConservativeSolver3D::setupWaveguideGeometry(int aSize, int bSize, int length, int bOff, int leps)
+	{
+		int Nxh = gridX / 2;
+		int Nyh = gridY / 2;
+		int Nzh = gridZ / 2;
+		_a = aSize;
+		_b = bSize;
+		double L0 = length;
+		double blockSize = 12;
+		double L1 = L0;
+		double L2 = 2.5 * bSize;
+		double _w = 2.5;
+		double blockOffsetZ = bOff;
+		_x1 = Nxh - _a/2;
+		_x2 = Nxh + _a/2;
+		_y1 = Nyh - _b/2;
+		_y2 = Nyh + _b/2;
+
+		_z1 = Nzh - length / 2;
+		_z2 = Nzh + length / 2;
+
+		int startZ = Nzh - L0/2;
+
+		int aThick = _a/2 - blockSize/2;
+		int bThick = _b/2 - blockSize/2;
+		int cThick = 0;//5;
+		int ofs = 0;
+		double gamma0 = sqrt(OMEGA*OMEGA*EPS_Z*MU_Z - M_PI*M_PI/(_a*_a));
+		double gamma1 = sqrt(OMEGA*OMEGA*EPS_Z*MU_Z*leps - M_PI*M_PI/(_a*_a));
+		double k0 = OMEGA*OMEGA*EPS_Z*MU_Z;
+		//double Nlz = Nl;
+		double Na = _a;
+		double Sz = CC * dt / dz;
+		double g0A = (1.0 / Sz) * sin(Sz * M_PI * k0 / (L0 * gamma0)) ;
+		//g0A *= g0A;
+		double g0B = (2.0 * Na / (gamma0 * Na * dx * L0)) * sin(M_PI / (2.0 * Na));
+		g0B *= g0B;
+		double g1A = sin(OMEGA*dt/2.0) / dt;
+		double g1B = sin(M_PI * dx / (2.0 * _a * dx)) / dx;
+		g1A *= g1A;
+		g1B *= g1B;
+		gamma0_num = gamma0 * (L0 / M_PI) * asin(sqrt(g0A - g0B)); 
+		gamma0_num = (2.0/dz) * asin(dz * sqrt(EPS_Z*MU_Z * g1A - g1B));
+		gamma1_num = (2.0/dz) * asin(dz * sqrt(leps*EPS_Z*MU_Z * g1A - g1B));
+
+		double LambdaK = 2*_a*dz;
+		double A1 = 1;
+		//double gamma1 = sqrt(OMEGA*OMEGA*EPS_Z*MU_Z*leps - M_PI*M_PI/(_a*_a));
+		double regz = cos(gamma1 * L0 * dz);
+		double imgz = sin(gamma1 * L0 * dz * (1 + (gamma1/gamma0)*(gamma1/gamma0))/2.0);
+		double modF = cos(gamma1*L0*dx)*cos(gamma1*L0*dx) + (gamma1*0.5/gamma0 + gamma0*0.5/gamma1)*(gamma1*0.5/gamma0 + gamma0*0.5/gamma1);
+		double ReF = (cos(gamma0 * L0 * dz) * regz + sin(gamma0 * L0 * dz) * imgz)/(regz*regz + imgz*imgz);
+		double ImF = (-cos(gamma0 * L0 * dz) * imgz + sin(gamma0 * L0 * dz) * regz)/(regz*regz + imgz*imgz);
+		system("pause");
+	}
+
+	void CConservativeSolver3D::setupWaveguideMaterial()
+	{
 	}
 
 }
