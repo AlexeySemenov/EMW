@@ -5,6 +5,7 @@
 #include "Helpers.h"
 #include "Log.h"
 #include <sstream>
+#include <iostream>
 
 namespace EMWSolver
 {
@@ -66,7 +67,7 @@ namespace EMWSolver
 		
 
 		prepare();
-		int aWg = numParam.Nx * 0.75;
+		int aWg = 50;//numParam.Nx * 0.75;
 		int bWg = aWg / 2;
 
 		setupWaveguideGeometry(aWg, bWg, gridZ, 0 , 1);
@@ -459,7 +460,7 @@ namespace EMWSolver
 		for(int t = 0; t < timeSteps; t++)
 		{
 			SolveStep();
-			if(t >= 1000)
+			//if(t >= 1000)
 				if(t%10 == 0)
 					field->WriteFieldToBinary(Ey, crop, t / 10, "C:\\Ez");
 		}
@@ -510,6 +511,19 @@ namespace EMWSolver
 		double gamma0 = sqrt(OMEGA*OMEGA*EPS_Z*MU_Z - M_PI*M_PI/(_a*_a));
 		double gamma1 = sqrt(OMEGA*OMEGA*EPS_Z*MU_Z*leps - M_PI*M_PI/(_a*_a));
 		double k0 = OMEGA*OMEGA*EPS_Z*MU_Z;
+
+		double Vf = CC / sqrt(1.0 - (M_PI * M_PI * CC * CC / (_a * _a * dx * dx * OMEGA * OMEGA)));
+		double Krlambda = 2 * M_PI * Vf / OMEGA;
+		double WGlambda = LAMBDA / sqrt(1 - LAMBDA*LAMBDA/(2 * _a * 2 * _a * dx * dx));
+		double SPlambda = LAMBDA;
+		int perL = LAMBDA / dx;
+		int perW = WGlambda / dx;
+		if ((WGlambda < 2*_a*dx) || (WGlambda > 4*_a*dx))
+		{
+			std::cout << "ERROR! Lambda = " << WGlambda << std::endl;
+			std::cout << "2a = " << 2*_a*dx << std::endl;
+			system("PAUSE");
+		}
 		//double Nlz = Nl;
 		double Na = _a;
 		double Sz = CC * dt / dz;

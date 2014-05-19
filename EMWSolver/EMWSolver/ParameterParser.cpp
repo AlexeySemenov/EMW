@@ -22,7 +22,7 @@ namespace EMWSolver
 
 		defaultNumericalParameters.Nx = 80;
 		defaultNumericalParameters.Ny = 80;
-		defaultNumericalParameters.Nz = 40;
+		defaultNumericalParameters.Nz = 80;
 
 		defaultBoundaryParameters[0].boundaryPosition = BoundaryPosition::Left;
 		defaultBoundaryParameters[0].boundaryType = BoundaryType::Dirichlet;

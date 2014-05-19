@@ -118,7 +118,7 @@ int writeNCF(int from, int to)
 	 fileName = s.str();
 
    /* Create the file. */
-	 if ((retval = nc_create(fileName.c_str(), NC_CLOBBER | NC_64BIT_OFFSET, &ncid)))
+	 if ((retval = nc_create(fileName.c_str(), NC_CLOBBER | NC_NETCDF4, &ncid)))
       ERR(retval);
 
    /* Define the dimensions. The record dimension is defined to have
@@ -532,10 +532,10 @@ int main(int argc, char** argv)
 		yDim[i] = i/80.0;
 
 	for(int i = 0; i < gridZ; i++)
-		zDim[i] = i/40.0;
+		zDim[i] = i/80.0;
 
 	//dFile = fopen ("ampfileSizeVarEps1602.txt","w");
-	writeNCF(0, 19);
+	writeNCF(0, 98);
 	//for(int i = 2; i <= 20; i++)
 		//countAmp(760,970, 620, 840,"ey", i+1600);
 
