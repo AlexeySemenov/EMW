@@ -1,3 +1,8 @@
+#include <cstring>
+#include <fstream>
+#include <sstream>
+#include "Log.h"
+
 namespace EMWSolver
 {
 	double* const	CreateJaggedArray1D(int size)
@@ -148,5 +153,28 @@ namespace EMWSolver
 			for(int j = 0; j < sizeY; j++)
 				for(int k = 0; k < sizeZ; k++)
 					array3d[i][j][k] = value;
+	}
+
+	const void WriteJaggedArray1DToFile(double* const array1d, int size, const std::string& path, const std::string& name, int index)
+	{
+		std::string fileName;
+		std::stringstream s;
+		s << path << "\\" << name << "[" << index << "].dat";
+		fileName = s.str();
+		std::ofstream file(fileName.c_str(), std::ios::out | std::ios::binary);
+		double tmp;
+
+		if(!file.is_open())
+			Log::GetInstance().WriteLine("ERROR::Cannot open file for write!");
+
+		Log::GetInstance().Write("Writing to file... ");
+		for(int i = 0; i < size; i++)
+			{
+				tmp = array1d[i];
+				file.write((char *) &tmp, sizeof(double));
+			}
+		Log::GetInstance().Write(size * sizeof(double));
+		Log::GetInstance().WriteLine(" BYTE written succesfully");
+		file.close();
 	}
 }

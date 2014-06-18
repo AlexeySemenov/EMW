@@ -16,13 +16,13 @@ namespace EMWSolver
 		defaultSourceParameters.pointSourceZ = NULL;
 
 		defaultNumericalParameters.S = 1;
-		defaultNumericalParameters.sizeX = 100;
-		defaultNumericalParameters.sizeY = 50;
-		defaultNumericalParameters.sizeZ = 1500;
+		defaultNumericalParameters.sizeX = 50;
+		defaultNumericalParameters.sizeY = 25;
+		defaultNumericalParameters.sizeZ = 2000;
 
 		defaultNumericalParameters.Nx = 80;
 		defaultNumericalParameters.Ny = 80;
-		defaultNumericalParameters.Nz = 80;
+		defaultNumericalParameters.Nz = 40;
 
 		defaultBoundaryParameters[0].boundaryPosition = BoundaryPosition::Left;
 		defaultBoundaryParameters[0].boundaryType = BoundaryType::Dirichlet;

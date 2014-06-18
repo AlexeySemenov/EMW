@@ -7,7 +7,7 @@ namespace EMWSolver
 	{
 	public:
 		virtual void Create(TaskParameters taskParam, NumericalParameters numParam, SourceParameters srcParam, 
-				BoundaryParameters* bndParam) = 0;
+				BoundaryParameters* bndParam, int eps) = 0;
 		virtual void Solve(int timeStep) = 0;
 	private:
 		virtual void prepare() = 0;

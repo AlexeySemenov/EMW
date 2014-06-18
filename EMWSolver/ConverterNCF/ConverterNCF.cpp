@@ -12,9 +12,11 @@
 
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); return 2;}
 
-const int gridX = 100;
-const int gridY = 50;
-const int gridZ = 1500;
+const int gridX = 50;
+const int gridY = 25;
+const int gridZ = 2000;
+
+const int zSize =2000;
 
 double ez[gridX][gridY][gridZ];
 double ex[gridX][gridY][gridZ];
@@ -24,11 +26,16 @@ double ey[gridX][gridY][gridZ];
 double xDim[gridX];
 double yDim[gridY];
 double zDim[gridZ];
+
+double amp[zSize];
+double ampIm[zSize];
+
 double* data;
 
 FILE* dFile;
 
-const double dx = LAMBDA/20.0;
+const double dx = LAMBDA/80.0;
+
 const double dt = 0.99*dx/(sqrt(3.0)*CC);
 using namespace std;
 void readFile(int timestp, string path)
@@ -92,6 +99,37 @@ void readFile(int timestp, string path)
 	     
 };
 
+void readFile1D(int index, string path, string name)
+{   
+	string fileName4;
+	stringstream s4;
+	 s4 << path<<"\\"<<name <<"[" << index << "]" << ".dat";
+	fileName4 = s4.str();
+	 ifstream file4(fileName4.c_str(), ios::in | ios::binary);
+
+	 double tmp1,tmp2, tmp3, tmp4;
+
+	if(!file4.is_open())
+		cout << "ERROR::Cannot open file for read! " << fileName4 << endl ;
+
+	cout << "Reading file... " << index <<"...";
+
+			for(int k = 0; k < zSize; k++)
+			{
+				//file2.read((char *) &tmp2, sizeof(double));
+				//file3.read((char *) &tmp3, sizeof(double));
+				file4.read((char *) &tmp4, sizeof(double));
+				//ez[i][j][k] = tmp2;
+				//ex[i][j][k] = tmp3;
+				amp[k] = tmp4;
+
+			}
+	cout << zSize*sizeof(double) << " BYTE read succesfully" << endl;
+
+	file4.close();
+
+	     
+};
 int writeNCF(int from, int to)
 {
 	 /* IDs for the netCDF file, dimensions, and variables. */
@@ -114,7 +152,7 @@ int writeNCF(int from, int to)
 
    string fileName;
      stringstream s;
-	 s << "C:\\ncf\\testEMW.nc";
+	 s << "G:\\ncf\\testEMW.nc";
 	 fileName = s.str();
 
    /* Create the file. */
@@ -224,7 +262,7 @@ int writeNCF(int from, int to)
    for (rec = 0; rec < nmax; rec++)
    {
       start[0] = rec;
-	  readFile(rec+from, "C:\\Ez");
+	  readFile(rec+from, "D:\\Ez");
   //    if ((retval = nc_put_vara_double(ncid, ez_varid, start, count, 
 		//		      &ez[0][0][0])))
 		//ERR(retval);
@@ -257,7 +295,7 @@ int countAmp(int start, int end, int arstart, int arend, char* name, int id)
 {
 	int nmax = end - start;
 	int zdim = (arend - arstart)+1;
-	int adim = 80;
+	int adim = 50;
 	double** inputAmp;
 	inputAmp = new double*[nmax+1];
 	for (int rec = 0; rec <= nmax; rec++)
@@ -523,6 +561,76 @@ int countAmp(int start, int end, int arstart, int arend, char* name, int id)
    //cin >> px;
 }
 
+
+int writeAmp(int id, string name)
+{
+	int ncid, omega_dimid;
+   int ey_varid, omega_varid, ampim_varid, ReF_varid, ImF_varid, 
+	   ecos_varid, esin_varid, ncos_varid, nsin_varid;
+   int dimids[1];
+
+   /* The start and count arrays will tell the netCDF library where to
+      write our data. */
+   size_t start[1], count[1];
+
+
+   /* Loop indexes. */
+   int lvl, lat, lon, rec, i = 0;
+   
+   /* Error handling. */
+   int retval;
+
+   string fileName;
+     stringstream str;
+	 str << "G:\\ncf\\" << name << id << ".nc";
+	 fileName = str.str();
+
+   /* Create the file. */
+	 if ((retval = nc_create(fileName.c_str(), NC_CLOBBER, &ncid)))
+      ERR(retval);
+
+   /* Define the dimensions. The record dimension is defined to have
+    * unlimited length - it can grow as needed. In this example it is
+    * the time dimension.*/
+
+   if ((retval = nc_def_dim(ncid, "z",zSize, &omega_dimid)))
+      ERR(retval);
+
+   /* The dimids array is used to pass the dimids of the dimensions of
+      the netCDF variables. Both of the netCDF variables we are
+      creating share the same four dimensions. In C, the
+      unlimited dimension must come first on the list of dimids. */
+   dimids[0] = omega_dimid;
+
+   /* Define the netCDF variables for the pressure and temperature
+    * data. */
+   if ((retval = nc_def_var(ncid, name.c_str(), NC_DOUBLE, 1, 
+			    dimids, &ey_varid)))
+      ERR(retval);
+   //if ((retval = nc_def_var(ncid, "AmpIM", NC_DOUBLE, 1, 
+			//    dimids, &ampim_varid)))
+   //   ERR(retval);
+
+
+   /* End define mode. */
+   if ((retval = nc_enddef(ncid)))
+      ERR(retval);
+
+
+      if ((retval = nc_put_var_double(ncid, ey_varid,  &amp[0])))
+	 ERR(retval);
+
+	 // if ((retval = nc_put_var_double(ncid, ampim_varid,  &ampIM[0])))
+	 //ERR(retval);
+
+
+	  if ((retval = nc_close(ncid)))
+      ERR(retval);
+   
+   printf("*** SUCCESS writing  file!");
+
+}
+
 int main(int argc, char** argv)
 {
 	for(int i = 0; i < gridX; i++)
@@ -532,10 +640,25 @@ int main(int argc, char** argv)
 		yDim[i] = i/80.0;
 
 	for(int i = 0; i < gridZ; i++)
-		zDim[i] = i/80.0;
+		zDim[i] = i/40.0;
 
 	//dFile = fopen ("ampfileSizeVarEps1602.txt","w");
-	writeNCF(0, 98);
+	for(int i = 2; i <=3; i++)
+	{
+		readFile1D(i, "D:\\Ez", "ReF");
+		writeAmp(i,"ReF");
+	}
+	for(int i = 2; i <=3; i++)
+	{
+		readFile1D(i, "D:\\Ez","ImF");
+		writeAmp(i,"ImF");
+	}
+	for(int i = 2; i <=3; i++)
+	{
+		readFile1D(i, "D:\\Ez","modF");
+		writeAmp(i,"modF");
+	}
+	//writeNCF(500,  1999);
 	//for(int i = 2; i <= 20; i++)
 		//countAmp(760,970, 620, 840,"ey", i+1600);
 

@@ -39,13 +39,13 @@ namespace EMWSolver
 
 	CField3D::~CField3D(void)
 	{
-		DeleteJaggedArray3D(Ex, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Ey, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Ez, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Ex, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Ey, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Ez, gridX, gridY, gridZ);
 
-		DeleteJaggedArray3D(Hx, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Hy, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Hz, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Hx, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Hy, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Hz, gridX, gridY, gridZ);
 	}
 
 	void CField3D::WriteFieldToBinary(EMField component, EMCrop crop, int timestep, const std::string& path)

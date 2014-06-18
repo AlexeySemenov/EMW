@@ -29,5 +29,7 @@ namespace EMWSolver
 	void	ValueJaggedArray1D(double*  const array1d, int size, double value);
 	void	ValueJaggedArray2D(double** const array2d, int sizeX, int sizeY, double value);
 	void	ValueJaggedArray3D(double***const array3d, int sizeX, int sizeY, int sizeZ, double value);
+
+	void	WriteJaggedArray1DToFile(double* const array1d, int size, const std::string& path, const std::string& name, int index);
 }
 #endif
