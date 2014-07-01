@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 		solver->Create(parser.GetDefaultTaskParameters(), parser.GetDefaultNumericalParameters(), 
 			parser.GetDefaultSourceParameters(), parser.GetDefaultBoundaryParameters(), i);
 
-		solver->Solve(3000);
+		solver->Solve(30);
 	
 
 		delete solver;
