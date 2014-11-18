@@ -40,6 +40,10 @@ namespace EMWSolver
 
 		Log::GetInstance().Write("Creating solver arrays...");
 
+		gridX = numParam.sizeX + 1;
+		gridY = numParam.sizeY + 1;
+		gridZ = numParam.sizeZ + 1;
+
 		Eps = CreateJaggedArray3D(numParam.sizeX, numParam.sizeY, numParam.sizeZ);
 		Mju = CreateJaggedArray3D(numParam.sizeX, numParam.sizeY, numParam.sizeZ);
 		Sig = CreateJaggedArray3D(numParam.sizeX, numParam.sizeY, numParam.sizeZ);
@@ -54,39 +58,43 @@ namespace EMWSolver
 		ZeroJaggedArray3D(Ms, numParam.sizeX, numParam.sizeY, numParam.sizeZ);
 		ZeroJaggedArray3D(Js, numParam.sizeX, numParam.sizeY, numParam.sizeZ);
 
-		
+		for(int i = 0; i < field->sizeX / 3; i++)
+			for(int j = 0; j < field->sizeY; j++)
+				for(int k = 0; k < field->sizeZ; k++)
+				{
+					Eps[i][j][k] = 4;
+					Mju[i][j][k] = 4;
+				}
 
 		Log::GetInstance().WriteLine("Finished.");
 
-		gridX = numParam.sizeX;
-		gridY = numParam.sizeY;
-		gridZ = numParam.sizeZ;
+		
 
 		logger << "Task size: " << gridX << " " << gridY << " " << gridZ;
 		Log::GetInstance().WriteLine(logger.str());
 
 		
 
-		prepare();
-		int aWg = 50;//numParam.Nx * 0.75;
-		int bWg = aWg / 2;
+		//prepare();
+		//int aWg = 50;//numParam.Nx * 0.75;
+		//int bWg = aWg / 2;
 
-		wgIndex = eps;
-		setupWaveguideGeometry(aWg, bWg, aWg / 4, 0 , eps);
+		//wgIndex = eps;
+		//setupWaveguideGeometry(aWg, bWg, aWg / 4, 0 , eps);
 
 
-		startRawTime = 2500;
-		endRawTime = 2700;
-		int rawSize = endRawTime - startRawTime;
-		rawIterator = 0;
-		RawEyCenter = CreateJaggedArray2D(rawSize, gridZ);
-		RawEyUp = CreateJaggedArray2D(rawSize, gridZ);
-		RawEyDown = CreateJaggedArray2D(rawSize, gridZ);
-		RawEyLeft = CreateJaggedArray2D(rawSize, gridZ);
-		RawEyRight = CreateJaggedArray2D(rawSize, gridZ);
+		//startRawTime = 2500;
+		//endRawTime = 2700;
+		//int rawSize = endRawTime - startRawTime;
+		//rawIterator = 0;
+		//RawEyCenter = CreateJaggedArray2D(rawSize, gridZ);
+		//RawEyUp = CreateJaggedArray2D(rawSize, gridZ);
+		//RawEyDown = CreateJaggedArray2D(rawSize, gridZ);
+		//RawEyLeft = CreateJaggedArray2D(rawSize, gridZ);
+		//RawEyRight = CreateJaggedArray2D(rawSize, gridZ);
 
-		Ew = CreateJaggedArray3D(numParam.sizeX, numParam.sizeY, numParam.sizeZ);
-		Ey0 = 1;//M_PI/(_a*dx);
+		//Ew = CreateJaggedArray3D(numParam.sizeX, numParam.sizeY, numParam.sizeZ);
+		//Ey0 = 1;//M_PI/(_a*dx);
 	}
 
 	void CConservativeSolver3D::SolveStep()
@@ -99,25 +107,25 @@ namespace EMWSolver
 		Log::GetInstance().Write(globalTimestep);
 		Log::GetInstance().Write(" ...");
 				//std::cout << "TimeStep:" << globalTimestep << std::endl;
-			double rtau = 1.0 / FREQ;
-			double tau = rtau / dt;
-			double ndelay = 3 * tau;
-			double taper = 1 - exp(-((globalTimestep) * (globalTimestep)/(tau * tau)));
+			//double rtau = 1.0 / FREQ;
+			//double tau = rtau / dt;
+			//double ndelay = 3 * tau;
+			//double taper = 1 - exp(-((globalTimestep) * (globalTimestep)/(tau * tau)));
 
-			for(int i = 1; i < gridX-1; i++)
-				for(int j = 1; j < gridY-1; j++)
-				{
-					#pragma omp parallel for
-					for(int k = 1; k < gridZ - 1; k++)
-					{
-						//Ey0 = 1.0 / sqrt(Eps[i][j][k]);
-						double Eyinc1 = Ey0 * cos(OMEGA * (globalTimestep + 0.5) * dt - gamma0_num * (k - gridZ/2 - l0/2) * dz) * sin(M_PI * (i - _x1) / (_a ));
-						double Eyinc0 = Ey0 * cos(OMEGA * (globalTimestep - 0.5) * dt - gamma0_num * (k- gridZ/2 - l0/2) * dz) * sin(M_PI * (i - _x1)  / (_a ));
-						Ew[i][j][k] = Eyinc1;
-						field->Ey[i][j][k] = field->Ey[i][j][k] - (1.0 - 1.0/(0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k])))*
-							(Eyinc1 - Eyinc0) - (dt * Sig[i][j][k] / (0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k])*EPS_Z))*Eyinc1;
-					}
-				}
+			//for(int i = 1; i < gridX-1; i++)
+			//	for(int j = 1; j < gridY-1; j++)
+			//	{
+			//		#pragma omp parallel for
+			//		for(int k = 1; k < gridZ - 1; k++)
+			//		{
+			//			//Ey0 = 1.0 / sqrt(Eps[i][j][k]);
+			//			double Eyinc1 = Ey0 * cos(OMEGA * (globalTimestep + 0.5) * dt - gamma0_num * (k - gridZ/2 - l0/2) * dz) * sin(M_PI * (i - _x1) / (_a ));
+			//			double Eyinc0 = Ey0 * cos(OMEGA * (globalTimestep - 0.5) * dt - gamma0_num * (k- gridZ/2 - l0/2) * dz) * sin(M_PI * (i - _x1)  / (_a ));
+			//			Ew[i][j][k] = Eyinc1;
+			//			field->Ey[i][j][k] = field->Ey[i][j][k] - (1.0 - 1.0/(0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k])))*
+			//				(Eyinc1 - Eyinc0) - (dt * Sig[i][j][k] / (0.25 * (Eps[i][j][k] + Eps[i][j][k - 1] + Eps[i - 1][j][k - 1] + Eps[i - 1][j][k])*EPS_Z))*Eyinc1;
+			//		}
+			//	}
 
 			//for(int i = _x1; i <_x2; i++)
 			//	for(int j = _y1; j <_y2; j++)
@@ -127,12 +135,16 @@ namespace EMWSolver
 			//		//data->Ey[i][j][1] = data->Ey[i][j][0];
 			//	}	
 			
+		for(int k = 0; k < field->gridZ; k++)
+		{
+			field->Ez[field->gridX/2][field->gridY/2][k] = cos(OMEGA* globalTimestep * dt);
+		}
 			//Calculate H - field at domain
-			for(int i = 0; i < gridX; i++)
-				for(int j = 0; j < gridY; j++)
+			for(int i = 0; i < field->sizeX; i++)
+				for(int j = 0; j < field->sizeY; j++)
 				{
 					#pragma omp parallel for
-					for(int k = 0; k < gridZ; k++)
+					for(int k = 0; k < field->sizeZ; k++)
 					{
 						double MjuX, MjuY, MjuZ;
 						double SigSX, SigSY, SigSZ;
@@ -152,30 +164,10 @@ namespace EMWSolver
 						sigDt2Mju = 0.5 * SigSX * dtMju;
 						plus1sigDt2Mju = 1.0 + sigDt2Mju;
 
-						if( (j != gridY - 1) && (k != gridZ - 1))
-						{
- 							field->Hx[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hx[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ey[i][j][k+1] - field->Ey[i][j][k]) * invdz - 
-								(field->Ez[i][j + 1][k] - field->Ez[i][j][k]) * invdy - Ms[i][j][k]);
-						}
-						else if( (j != gridY - 1) && (k == gridZ - 1))
-						{
-							field->Hx[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hx[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ey[i][j][k]) * invdz - 
-								(field->Ez[i][j + 1][k] - field->Ez[i][j][k]) * invdy - Ms[i][j][k]);
-						}
-						else if( (j == gridY - 1) && (k != gridZ - 1))
-						{
-							field->Hx[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hx[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ey[i][j][k+1] - field->Ey[i][j][k]) * invdz - 
-								(- field->Ez[i][j][k]) * invdy - Ms[i][j][k]);
-						}
-						else if( (j == gridY - 1) && (k == gridZ - 1))
-						{
-							field->Hx[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hx[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ey[i][j][k]) * invdz - 
-								(- field->Ez[i][j][k]) * invdy - Ms[i][j][k]);
-						}
+ 						field->Hx[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hx[i][j][k] + 
+							(dtMju / plus1sigDt2Mju) * ((field->Ey[i][j][k+1] - field->Ey[i][j][k]) * invdz - 
+							(field->Ez[i][j + 1][k] - field->Ez[i][j][k]) * invdy - Ms[i][j][k]);
+
 
 						if(j != 0)
 						{
@@ -191,30 +183,12 @@ namespace EMWSolver
 						sigDt2Mju = 0.5 * SigSY * dtMju;
 						plus1sigDt2Mju = 1.0 + sigDt2Mju;
 
-						if( (i != gridX - 1) && (k != gridZ - 1))
-						{
-							field->Hy[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hy[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ez[i + 1][j][k] - field->Ez[i][j][k]) * invdx - 
-								(field->Ex[i][j][k + 1] - field->Ex[i][j][k]) * invdz - Ms[i][j][k]);
-						}
-						else if( (i == gridX - 1) && (k != gridZ - 1))
-						{
-							field->Hy[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hy[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ez[i][j][k]) * invdx - 
-								(field->Ex[i][j][k + 1] - field->Ex[i][j][k]) * invdz - Ms[i][j][k]);
-						}
-						else if( (i != gridX - 1) && (k == gridZ - 1))
-						{
-							field->Hy[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hy[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ez[i + 1][j][k] - field->Ez[i][j][k]) * invdx - 
-								(- field->Ex[i][j][k]) * invdz - Ms[i][j][k]);
-						}
-						else if( (i == gridX - 1) && (k == gridZ - 1))
-						{
-							field->Hy[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hy[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ez[i][j][k]) * invdx - 
-								(- field->Ex[i][j][k]) * invdz - Ms[i][j][k]);
-						}
+
+						field->Hy[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hy[i][j][k] + 
+							(dtMju / plus1sigDt2Mju) * ((field->Ez[i + 1][j][k] - field->Ez[i][j][k]) * invdx - 
+							(field->Ex[i][j][k + 1] - field->Ex[i][j][k]) * invdz - Ms[i][j][k]);
+
+						
 
 						if(k != 0)
 						{
@@ -230,41 +204,19 @@ namespace EMWSolver
 						sigDt2Mju = 0.5 * SigSZ * dtMju;
 						plus1sigDt2Mju = 1.0 + sigDt2Mju;
 
-						if( (i != gridX - 1) && (j != gridY - 1))
-						{
-							field->Hz[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hz[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ex[i][j + 1][k] - field->Ex[i][j][k]) * invdy - 
-								(field->Ey[i + 1][j][k] - field->Ey[i][j][k]) * invdx - Ms[i][j][k]);
-						}
-						else if ( (i == gridX - 1) && (j != gridY - 1))
-						{
-							field->Hz[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hz[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((field->Ex[i][j + 1][k] - field->Ex[i][j][k]) * invdy - 
-								(- field->Ey[i][j][k]) * invdx - Ms[i][j][k]);
-						}
-						else if ( (i != gridX - 1) && (j == gridY - 1))
-						{
-							field->Hz[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hz[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ex[i][j][k]) * invdy - 
-								(field->Ey[i + 1][j][k] - field->Ey[i][j][k]) * invdx - Ms[i][j][k]);
-						}
-						else if ( (i == gridX - 1) && (j == gridY - 1))
-						{
-							field->Hz[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hz[i][j][k] + 
-								(dtMju / plus1sigDt2Mju) * ((- field->Ex[i][j][k]) * invdy - 
-								(- field->Ey[i][j][k]) * invdx - Ms[i][j][k]);
-						}
+						field->Hz[i][j][k] = ((1.0 - sigDt2Mju) / plus1sigDt2Mju) * field->Hz[i][j][k] + 
+							(dtMju / plus1sigDt2Mju) * ((field->Ex[i][j + 1][k] - field->Ex[i][j][k]) * invdy - 
+							(field->Ey[i + 1][j][k] - field->Ey[i][j][k]) * invdx - Ms[i][j][k]);
 
-							
 					}
 			}
 
 		//Calculate E - field at domain
-		for(int i = 1; i < gridX ; i++)
-			for(int j = 1; j < gridY; j++)
+		for(int i = 1; i < field->sizeX ; i++)
+			for(int j = 1; j < field->sizeY; j++)
 			{
 				#pragma omp parallel for
-				for(int k = 1; k < gridZ; k++)
+				for(int k = 1; k < field->sizeZ; k++)
 				{
 					double EpsX, EpsY, EpsZ;
 					double SigX, SigY, SigZ;
@@ -307,10 +259,10 @@ namespace EMWSolver
 			}
 
 			//Boundary -X
-			for(int j = 1; j < gridY; j++)
+			for(int j = 1; j < field->sizeY; j++)
 			{
 				#pragma omp parallel for
-				for(int k = 1; k < gridZ; k++)
+				for(int k = 1; k < field->sizeZ; k++)
 				{
 					double EpsX, EpsY, EpsZ;
 					double SigX, SigY, SigZ;
@@ -328,9 +280,9 @@ namespace EMWSolver
 				}
 			}
 			//Boundary -Y
-			for(int i = 1; i < gridX ; i++)
+			for(int i = 1; i < field->sizeX ; i++)
 					#pragma omp parallel for
-					for(int k = 1; k < gridZ; k++)
+					for(int k = 1; k < field->sizeZ; k++)
 					{
 						double EpsX, EpsY, EpsZ;
 						double SigX, SigY, SigZ;
@@ -348,14 +300,13 @@ namespace EMWSolver
 						field->Ey[i][j][k] = ((1.0 - sigDt2Eps) / plus1sigDt2Eps) * field->Ey[i][j][k] + 
 							(dtEps / plus1sigDt2Eps) * ((field->Hx[i][j][k] - field->Hx[i][j][k - 1]) * invdz - 
 							(field->Hz[i][j][k] - field->Hz[i - 1][j][k]) * invdx - Js[i][j][k]);
-				
 				}
 
 			//Boundary -Z
-			for(int i = 1; i < gridX ; i++)
+			for(int i = 1; i < field->sizeX ; i++)
 			{
 				#pragma omp parallel for
-				for(int j = 1; j < gridY; j++)
+				for(int j = 1; j < field->sizeY; j++)
 				{		
 						int k = 0;
 						double EpsX, EpsY, EpsZ;
@@ -371,9 +322,7 @@ namespace EMWSolver
 					
 						field->Ez[i][j][k] = ((1.0 - sigDt2Eps) / plus1sigDt2Eps) * field->Ez[i][j][k] + 
 							(dtEps / plus1sigDt2Eps) * ((field->Hy[i][j][k] - field->Hy[i - 1][j][k]) * invdx - 
-							(field->Hx[i][j][k] - field->Hx[i][j - 1][k]) * invdx - Js[i][j][k]);
-					
-					
+							(field->Hx[i][j][k] - field->Hx[i][j - 1][k]) * invdx - Js[i][j][k]);				
 				}
 			}
 		globalTimestep++;
@@ -392,34 +341,38 @@ namespace EMWSolver
 		for(int t = 0; t < timeSteps; t++)
 		{
 			SolveStep();
+			field->WriteFieldToBinary(Ez, crop, t, "C:\\Ez");
 			//if(t >= 500)
 				//if(t%10 == 0)
 					//field->WriteFieldToBinary(Ey, crop, t, "D:\\Ez");
 
-			if( t>= startRawTime && t < endRawTime)
-				storeRawEy(gridX / 2, gridY / 2);
+			//if( t>= startRawTime && t < endRawTime)
+			//	storeRawEy(gridX / 2, gridY / 2);
 		}
-		calculateEyAmp(RawEyCenter, 0, gridZ);
+		//calculateEyAmp(RawEyCenter, 0, gridZ);
 	}
 
 	CConservativeSolver3D::~CConservativeSolver3D(void)
 	{
+		int sizeX = field->sizeX;
+		int sizeY = field->sizeY;
+		int sizeZ = field->sizeZ;
 		field = NULL;
-		DeleteJaggedArray3D(Eps, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Mju, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Sig, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(SigS, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Ms, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(Js, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(Eps, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(Mju, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(Sig, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(SigS, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(Ms, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(Js, sizeX, sizeY, sizeZ);
 
-		int rawSize = endRawTime - startRawTime;
-		DeleteJaggedArray2D(RawEyCenter, rawSize, gridZ);
-		DeleteJaggedArray2D(RawEyUp, rawSize, gridZ);
-		DeleteJaggedArray2D(RawEyDown, rawSize, gridZ);
-		DeleteJaggedArray2D(RawEyLeft, rawSize, gridZ);
-		DeleteJaggedArray2D(RawEyRight, rawSize, gridZ);
+		//int rawSize = endRawTime - startRawTime;
+		//DeleteJaggedArray2D(RawEyCenter, rawSize, gridZ);
+		//DeleteJaggedArray2D(RawEyUp, rawSize, gridZ);
+		//DeleteJaggedArray2D(RawEyDown, rawSize, gridZ);
+		//DeleteJaggedArray2D(RawEyLeft, rawSize, gridZ);
+		//DeleteJaggedArray2D(RawEyRight, rawSize, gridZ);
 
-		DeleteJaggedArray3D(Ew, gridX, gridY, gridZ);
+		//DeleteJaggedArray3D(Ew, gridX, gridY, gridZ);
 	}
 
 	void CConservativeSolver3D::prepare()

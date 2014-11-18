@@ -5,11 +5,15 @@
 
 namespace EMWSolver
 {
-	CField3D::CField3D(int sizeX, int sizeY, int sizeZ)
+	CField3D::CField3D(int _sizeX, int _sizeY, int _sizeZ)
 	{
-		gridX = sizeX;
-		gridY = sizeY;
-		gridZ = sizeZ;
+		sizeX = _sizeX;
+		sizeY = _sizeY;
+		sizeZ = _sizeZ;
+
+		gridX = sizeX + 1;
+		gridY = sizeY + 1;
+		gridZ = sizeZ + 1;
 
 		Log::GetInstance().Write("Creating em-fields 3D arrays...");
 
@@ -17,9 +21,10 @@ namespace EMWSolver
 		Ey = CreateJaggedArray3D(gridX, gridY, gridZ);
 		Ez = CreateJaggedArray3D(gridX, gridY, gridZ);
 
-		Hx = CreateJaggedArray3D(gridX, gridY, gridZ);
-		Hy = CreateJaggedArray3D(gridX, gridY, gridZ);
-		Hz = CreateJaggedArray3D(gridX, gridY, gridZ);
+		//H field arrays size is equals to number of cells in each dimension
+		Hx = CreateJaggedArray3D(sizeX, sizeY, sizeZ);
+		Hy = CreateJaggedArray3D(sizeX, sizeY, sizeZ);
+		Hz = CreateJaggedArray3D(sizeX, sizeY, sizeZ);
 
 		Log::GetInstance().WriteLine("Finished.");
 
@@ -29,9 +34,9 @@ namespace EMWSolver
 		ZeroJaggedArray3D(Ey, gridX, gridY, gridZ);
 		ZeroJaggedArray3D(Ez, gridX, gridY, gridZ);
 
-		ZeroJaggedArray3D(Hx, gridX, gridY, gridZ);
-		ZeroJaggedArray3D(Hy, gridX, gridY, gridZ);
-		ZeroJaggedArray3D(Hz, gridX, gridY, gridZ);
+		ZeroJaggedArray3D(Hx, sizeX, sizeY, sizeZ);
+		ZeroJaggedArray3D(Hy, sizeX, sizeY, sizeZ);
+		ZeroJaggedArray3D(Hz, sizeX, sizeY, sizeZ);
 
 		Log::GetInstance().WriteLine("Finished.");
 	}
@@ -43,9 +48,9 @@ namespace EMWSolver
 		DeleteJaggedArray3D(this->Ey, gridX, gridY, gridZ);
 		DeleteJaggedArray3D(this->Ez, gridX, gridY, gridZ);
 
-		DeleteJaggedArray3D(this->Hx, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(this->Hy, gridX, gridY, gridZ);
-		DeleteJaggedArray3D(this->Hz, gridX, gridY, gridZ);
+		DeleteJaggedArray3D(this->Hx, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(this->Hy, sizeX, sizeY, sizeZ);
+		DeleteJaggedArray3D(this->Hz, sizeX, sizeY, sizeZ);
 	}
 
 	void CField3D::WriteFieldToBinary(EMField component, EMCrop crop, int timestep, const std::string& path)
@@ -74,14 +79,14 @@ namespace EMWSolver
 			Log::GetInstance().WriteLine("ERROR::Cannot open file for write!");
 
 		Log::GetInstance().Write("Writing to file... ");
-		for(int i = crop.left; i < gridX - crop.right; i++)
-			for(int j = crop.down; j < gridY - crop.up; j++)
-				for(int k = crop.bottom; k < gridZ - crop.top; k++)
+		for(int i = crop.left; i < sizeX - crop.right; i++)
+			for(int j = crop.down; j < sizeY - crop.up; j++)
+				for(int k = crop.bottom; k < sizeZ - crop.top; k++)
 			{
 				tmp = outputArray[i][j][k];
 				file.write((char *) &tmp, sizeof(double));
 			}
-		Log::GetInstance().Write(gridX * gridY * gridZ * sizeof(double));
+		Log::GetInstance().Write(sizeX * sizeY * sizeZ * sizeof(double));
 		Log::GetInstance().WriteLine(" BYTE written succesfully");
 		file.close();
 	}

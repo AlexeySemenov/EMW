@@ -37,15 +37,19 @@ namespace EMWSolver
 		double*** Hy;
 		double*** Hz;
 
-		CField3D(int sizeX, int sizeY, int sizeZ);
-		void WriteFieldToBinary(EMField component, EMCrop crop, int timestep, const std::string& path);
-		~CField3D(void);
-	private:
-		
-
 		int gridX;
 		int gridY;
 		int gridZ;
+
+		int sizeX;
+		int sizeY;
+		int sizeZ;
+
+		//Number of cells per each dimension
+		CField3D(int _sizeX, int _sizeY, int _sizeZ);
+		void WriteFieldToBinary(EMField component, EMCrop crop, int timestep, const std::string& path);
+		~CField3D(void);
+
 	};
 }
 

@@ -13,24 +13,36 @@ int main(int argc, char* argv[])
 	clock_t wrkTime;
 	Log::GetInstance().SetOutputStream(&std::cout);
 	CParameterParser parser("default.xml");
-	NumericalParameters dflt = parser.GetDefaultNumericalParameters();
+	NumericalParameters defalutParameters = parser.GetDefaultNumericalParameters();
 
-	for(int i = 4; i <= 7; i++)
-	{
-		CField3D* field = new CField3D(dflt.sizeX, dflt.sizeY, dflt.sizeZ);
+	//for(int i = 4; i <= 7; i++)
+	//{
+	//	CField3D* field = new CField3D(dflt.sizeX, dflt.sizeY, dflt.sizeZ);
 
-		CConservativeSolver3D* solver = new CConservativeSolver3D(field);
+	//	CConservativeSolver3D* solver = new CConservativeSolver3D(field);
 
-		solver->Create(parser.GetDefaultTaskParameters(), parser.GetDefaultNumericalParameters(), 
-			parser.GetDefaultSourceParameters(), parser.GetDefaultBoundaryParameters(), i);
+	//	solver->Create(parser.GetDefaultTaskParameters(), parser.GetDefaultNumericalParameters(), 
+	//		parser.GetDefaultSourceParameters(), parser.GetDefaultBoundaryParameters(), i);
 
-		solver->Solve(30);
+	//	solver->Solve(30);
+	//
+
+	//	delete solver;
+	//	delete field;
+	//}
+
+	CField3D* field = new CField3D(defalutParameters.sizeX, defalutParameters.sizeY, defalutParameters.sizeZ);
+
+	CConservativeSolver3D* solver = new CConservativeSolver3D(field);
+
+	solver->Create(parser.GetDefaultTaskParameters(), parser.GetDefaultNumericalParameters(), 
+		parser.GetDefaultSourceParameters(), parser.GetDefaultBoundaryParameters(), 1);
+
+	solver->Solve(200);
 	
 
-		delete solver;
-		delete field;
-	}
-
+	delete solver;
+	delete field;
 	wrkTime = clock();
 	std::cout << "Solve Time: "<<wrkTime/CLOCKS_PER_SEC << std::endl;
 	system("PAUSE");

@@ -12,9 +12,9 @@
 
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); return 2;}
 
-const int gridX = 50;
-const int gridY = 25;
-const int gridZ = 2000;
+const int gridX = 100;
+const int gridY = 100;
+const int gridZ = 100;
 
 const int zSize =2000;
 
@@ -60,7 +60,7 @@ void readFile(int timestp, string path)
 
 	 string fileName4;
 	stringstream s4;
-	 s4 << path<<"\\Ey[" << timestp << "]" << ".dat";
+	 s4 << path<<"\\Ez[" << timestp << "]" << ".dat";
 	fileName4 = s4.str();
 	 ifstream file4(fileName4.c_str(), ios::in | ios::binary);
 
@@ -152,7 +152,7 @@ int writeNCF(int from, int to)
 
    string fileName;
      stringstream s;
-	 s << "G:\\ncf\\testEMW.nc";
+	 s << "C:\\ncf\\testEMW.nc";
 	 fileName = s.str();
 
    /* Create the file. */
@@ -262,7 +262,7 @@ int writeNCF(int from, int to)
    for (rec = 0; rec < nmax; rec++)
    {
       start[0] = rec;
-	  readFile(rec+from, "D:\\Ez");
+	  readFile(rec+from, "C:\\Ez");
   //    if ((retval = nc_put_vara_double(ncid, ez_varid, start, count, 
 		//		      &ez[0][0][0])))
 		//ERR(retval);
@@ -634,31 +634,31 @@ int writeAmp(int id, string name)
 int main(int argc, char** argv)
 {
 	for(int i = 0; i < gridX; i++)
-		xDim[i] = i/80.0;
+		xDim[i] = i/20.0;
 
 	for(int i = 0; i < gridY; i++)
-		yDim[i] = i/80.0;
+		yDim[i] = i/20.0;
 
 	for(int i = 0; i < gridZ; i++)
-		zDim[i] = i/40.0;
+		zDim[i] = i/20.0;
 
 	//dFile = fopen ("ampfileSizeVarEps1602.txt","w");
-	for(int i = 2; i <=3; i++)
-	{
-		readFile1D(i, "D:\\Ez", "ReF");
-		writeAmp(i,"ReF");
-	}
-	for(int i = 2; i <=3; i++)
-	{
-		readFile1D(i, "D:\\Ez","ImF");
-		writeAmp(i,"ImF");
-	}
-	for(int i = 2; i <=3; i++)
-	{
-		readFile1D(i, "D:\\Ez","modF");
-		writeAmp(i,"modF");
-	}
-	//writeNCF(500,  1999);
+	//for(int i = 2; i <=3; i++)
+	//{
+	//	readFile1D(i, "D:\\Ez", "ReF");
+	//	writeAmp(i,"ReF");
+	//}
+	//for(int i = 2; i <=3; i++)
+	//{
+	//	readFile1D(i, "D:\\Ez","ImF");
+	//	writeAmp(i,"ImF");
+	//}
+	//for(int i = 2; i <=3; i++)
+	//{
+	//	readFile1D(i, "D:\\Ez","modF");
+	//	writeAmp(i,"modF");
+	//}
+	writeNCF(0,  200);
 	//for(int i = 2; i <= 20; i++)
 		//countAmp(760,970, 620, 840,"ey", i+1600);
 

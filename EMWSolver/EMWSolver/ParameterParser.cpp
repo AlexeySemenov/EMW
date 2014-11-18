@@ -8,7 +8,7 @@ namespace EMWSolver
 		numberTasks = 0;
 		currentTask = 0;
 		defaultTaskParameters.Name = "Untitled";
-		defaultTaskParameters.ompThreads = 4;
+		defaultTaskParameters.ompThreads = 8;
 
 		defaultSourceParameters.isTFSF = false;
 		defaultSourceParameters.pointSourceX = NULL;
@@ -16,13 +16,13 @@ namespace EMWSolver
 		defaultSourceParameters.pointSourceZ = NULL;
 
 		defaultNumericalParameters.S = 1;
-		defaultNumericalParameters.sizeX = 50;
-		defaultNumericalParameters.sizeY = 25;
-		defaultNumericalParameters.sizeZ = 2000;
+		defaultNumericalParameters.sizeX = 100;
+		defaultNumericalParameters.sizeY = 100;
+		defaultNumericalParameters.sizeZ = 100;
 
-		defaultNumericalParameters.Nx = 80;
-		defaultNumericalParameters.Ny = 80;
-		defaultNumericalParameters.Nz = 40;
+		defaultNumericalParameters.Nx = 20;
+		defaultNumericalParameters.Ny = 20;
+		defaultNumericalParameters.Nz = 20;
 
 		defaultBoundaryParameters[0].boundaryPosition = BoundaryPosition::Left;
 		defaultBoundaryParameters[0].boundaryType = BoundaryType::Dirichlet;
